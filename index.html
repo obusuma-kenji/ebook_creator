@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>📚 EBook Creator Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            border-radius: 50%;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            border-radius: 30%;
+            top: 60%;
+            right: 20%;
+            animation-delay: 2s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 40px;
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+            border-radius: 20px;
+            top: 80%;
+            left: 60%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .header p {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            height: calc(100vh - 200px);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+        
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+        }
+        
+        .panel h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .book-metadata {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .chapters-list {
+            margin-bottom: 20px;
+        }
+        
+        .chapter-item {
+            background: rgba(246, 247, 251, 0.8);
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .chapter-item:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .chapter-item.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .chapter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .chapter-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .chapter-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .chapter-content {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .editor-panel {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .editor-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content-editor {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: none;
+            font-family: 'Crimson Text', serif;
+            background: rgba(255, 255, 255, 0.9);
+            min-height: 300px;
+        }
+        
+        .content-editor:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .actions-bar {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .preview-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+        
+        .preview-close:hover {
+            color: #333;
+        }
+        
+        .book-preview {
+            font-family: 'Crimson Text', serif;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .book-preview h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .book-preview .author {
+            text-align: center;
+            color: #888;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        .book-preview .chapter {
+            margin-bottom: 40px;
+            page-break-after: always;
+        }
+        
+        .book-preview .chapter h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        
+        .book-preview .chapter-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            text-align: justify;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 40px 20px;
+        }
+        
+        .word-count {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #667eea;
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            background: #e1e5e9;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .mobile-fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-fab {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📚 EBook Creator Pro</h1>
+            <p>プロフェッショナルな電子書籍を簡単に作成</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左パネル: 書籍管理 -->
+            <div class="panel">
+                <h2>📖 書籍管理</h2>
+                
+                <div class="book-metadata">
+                    <div class="form-group">
+                        <label for="bookTitle">書籍タイトル</label>
+                        <input type="text" id="bookTitle" placeholder="素晴らしい物語" value="私の素晴らしい物語">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bookAuthor">著者名</label>
+                        <input type="text" id="bookAuthor" placeholder="あなたの名前" value="匿名作家">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bookDescription">書籍の説明</label>
+                        <textarea id="bookDescription" rows="3" placeholder="この書籍について簡潔に説明してください...">感動的な物語をお届けします。</textarea>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="chapterCount">2</div>
+                        <div class="stat-label">章数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalWords">245</div>
+                        <div class="stat-label">総文字数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="readingTime">1</div>
+                        <div class="stat-label">読書時間(分)</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+                </div>
+                <div style="text-align: center; color: #666; font-size: 0.9em; margin-top: 5px;">
+                    執筆進行度 (目標: 10,000文字)
+                </div>
+
+                <div class="chapters-list">
+                    <h3 style="margin-bottom: 15px; color: #555;">📑 章一覧</h3>
+                    <div id="chaptersList">
+                        <!-- 章がここに表示される -->
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="addChapter()">
+                    ➕ 新しい章を追加
+                </button>
+            </div>
+
+            <!-- 右パネル: エディタ -->
+            <div class="panel editor-panel">
+                <h2>✍️ エディタ</h2>
+                
+                <div class="editor-toolbar">
+                    <button class="btn btn-secondary btn-small" onclick="formatText('bold')">
+                        <strong>B</strong>
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="formatText('italic')">
+                        <em>I</em>
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="formatText('header')">
+                        H
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="insertImage()">
+                        🖼️
+                    </button>
+                </div>
+
+                <div class="editor-content">
+                    <div style="margin-bottom: 10px;">
+                        <strong id="currentChapterTitle">章を選択してください</strong>
+                    </div>
+                    
+                    <textarea 
+                        id="contentEditor" 
+                        class="content-editor" 
+                        placeholder="ここに章の内容を入力してください...&#10;&#10;物語を書き始めましょう。読者を引き込む素晴らしい文章を作成してください。"
+                        disabled
+                    ></textarea>
+                    
+                    <div class="word-count" id="wordCount">
+                        文字数: 0 | 単語数: 0
+                    </div>
+                </div>
+
+                <div class="actions-bar">
+                    <button class="btn btn-success" onclick="saveChapter()">
+                        💾 保存
+                    </button>
+                    <button class="btn btn-primary" onclick="previewBook()">
+                        👁️ プレビュー
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportBook('html')">
+                        📄 HTML出力
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportBook('text')">
+                        📝 テキスト出力
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- プレビューモーダル -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-content">
+            <button class="preview-close" onclick="closePreview()">✕</button>
+            <div class="book-preview" id="bookPreview">
+                <!-- プレビューコンテンツがここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- モバイル用フローティングアクションボタン -->
+    <button class="mobile-fab" onclick="toggleMobileActions()" id="mobileFab">
+        ⚡
+    </button>
+
+    <script>
+        class EBookCreator {
+            constructor() {
+                this.book = {
+                    title: '私の素晴らしい物語',
+                    author: '匿名作家',
+                    description: '感動的な物語をお届けします。',
+                    chapters: [
+                        {
+                            id: 1,
+                            title: '第1章: はじまり',
+                            content: 'それは晴れた春の日のことでした。主人公の田中は新しい冒険に向かって歩き出していました。\n\n街角を曲がると、そこには見たこともない美しい景色が広がっていました。桜が舞い散る中、彼は運命的な出会いを果たすことになるのです。'
+                        },
+                        {
+                            id: 2,
+                            title: '第2章: 出会い',
+                            content: 'そこで彼が出会ったのは、まるで妖精のような美しい少女でした。\n\n「こんにちは」と彼女は微笑みました。その瞬間、田中の人生は大きく変わり始めたのです。'
+                        }
+                    ]
+                };
+                this.currentChapterIndex = -1;
+                this.nextChapterId = 3;
+                
+                this.initialize();
+            }
+
+            initialize() {
+                this.updateBookMetadata();
+                this.renderChaptersList();
+                this.updateStats();
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                document.getElementById('bookTitle').addEventListener('input', (e) => {
+                    this.book.title = e.target.value;
+                    this.updateStats();
+                });
+
+                document.getElementById('bookAuthor').addEventListener('input', (e) => {
+                    this.book.author = e.target.value;
+                });
+
+                document.getElementById('bookDescription').addEventListener('input', (e) => {
+                    this.book.description = e.target.value;
+                });
+
+                document.getElementById('contentEditor').addEventListener('input', () => {
+                    this.updateWordCount();
+                });
+
+                // エンターキーでの改行を適切に処理
+                document.getElementById('contentEditor').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        // 自動保存
+                        setTimeout(() => this.autoSave(), 100);
+                    }
+                });
+            }
+
+            updateBookMetadata() {
+                document.getElementById('bookTitle').value = this.book.title;
+                document.getElementById('bookAuthor').value = this.book.author;
+                document.getElementById('bookDescription').value = this.book.description;
+            }
+
+            renderChaptersList() {
+                const container = document.getElementById('chaptersList');
+                
+                if (this.book.chapters.length === 0) {
+                    container.innerHTML = '<div class="empty-state">まだ章がありません。<br>新しい章を追加してください。</div>';
+                    return;
+                }
+
+                container.innerHTML = this.book.chapters.map((chapter, index) => `
+                    <div class="chapter-item ${index === this.currentChapterIndex ? 'active' : ''}" 
+                         onclick="app.selectChapter(${index})">
+                        <div class="chapter-header">
+                            <div class="chapter-title">${chapter.title}</div>
+                            <div class="chapter-actions">
+                                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); app.editChapterTitle(${index})">
+                                    ✏️
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); app.deleteChapter(${index})">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chapter-content">
+                            ${chapter.content.substring(0, 100)}${chapter.content.length > 100 ? '...' : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            selectChapter(index) {
+                if (this.currentChapterIndex !== -1) {
+                    this.saveCurrentChapter();
+                }
+                
+                this.currentChapterIndex = index;
+                const chapter = this.book.chapters[index];
+                
+                document.getElementById('currentChapterTitle').textContent = chapter.title;
+                document.getElementById('contentEditor').value = chapter.content;
+                document.getElementById('contentEditor').disabled = false;
+                
+                this.updateWordCount();
+                this.renderChaptersList();
+            }
+
+            saveCurrentChapter() {
+                if (this.currentChapterIndex !== -1) {
+                    const content = document.getElementById('contentEditor').value;
+                    this.book.chapters[this.currentChapterIndex].content = content;
+                    this.updateStats();
+                }
+            }
+
+            autoSave() {
+                if (this.currentChapterIndex !== -1) {
+                    this.saveCurrentChapter();
+                }
+            }
+
+            addChapter() {
+                const title = prompt('新しい章のタイトルを入力してください:', `第${this.book.chapters.length + 1}章: 新章`);
+                if (title) {
+                    const newChapter = {
+                        id: this.nextChapterId++,
+                        title: title,
+                        content: ''
+                    };
+                    this.book.chapters.push(newChapter);
+                    this.renderChaptersList();
+                    this.updateStats();
+                    this.selectChapter(this.book.chapters.length - 1);
+                }
+            }
+
+            editChapterTitle(index) {
+                const chapter = this.book.chapters[index];
+                const newTitle = prompt('章のタイトルを編集:', chapter.title);
+                if (newTitle && newTitle.trim()) {
+                    chapter.title = newTitle.trim();
+                    this.renderChaptersList();
+                    if (index === this.currentChapterIndex) {
+                        document.getElementById('currentChapterTitle').textContent = newTitle;
+                    }
+                }
+            }
+
+            deleteChapter(index) {
+                if (confirm('この章を削除してもよろしいですか？')) {
+                    this.book.chapters.splice(index, 1);
+                    if (index === this.currentChapterIndex) {
+                        this.currentChapterIndex = -1;
+                        document.getElementById('currentChapterTitle').textContent = '章を選択してください';
+                        document.getElementById('contentEditor').value = '';
+                        document.getElementById('contentEditor').disabled = true;
+                    } else if (index < this.currentChapterIndex) {
+                        this.currentChapterIndex--;
+                    }
+                    this.renderChaptersList();
+                    this.updateStats();
+                }
+            }
+
+            updateWordCount() {
+                const content = document.getElementById('contentEditor').value;
+                const chars = content.length;
+                const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+                
+                document.getElementById('wordCount').textContent = `文字数: ${chars} | 単語数: ${words}`;
+            }
+
+            updateStats() {
+                const totalChars = this.book.chapters.reduce((sum, chapter) => sum + chapter.content.length, 0);
+                const readingTime = Math.max(1, Math.ceil(totalChars / 600)); // 1分間約600文字
+                const progress = Math.min(100, (totalChars / 10000) * 100); // 目標10,000文字
+
+                document.getElementById('chapterCount').textContent = this.book.chapters.length;
+                document.getElementById('totalWords').textContent = totalChars;
+                document.getElementById('readingTime').textContent = readingTime;
+                document.getElementById('progressFill').style.width = progress + '%';
+            }
+
+            formatText(type) {
+                const editor = document.getElementById('contentEditor');
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                const selectedText = editor.value.substring(start, end);
+                
+                if (!selectedText) {
+                    alert('テキストを選択してからフォーマットしてください。');
+                    return;
+                }
+
+                let formattedText = selectedText;
+                switch (type) {
+                    case 'bold':
+                        formattedText = `**${selectedText}**`;
+                        break;
+                    case 'italic':
+                        formattedText = `*${selectedText}*`;
+                        break;
+                    case 'header':
+                        formattedText = `## ${selectedText}`;
+                        break;
+                }
+
+                editor.value = editor.value.substring(0, start) + formattedText + editor.value.substring(end);
+                editor.setSelectionRange(start, start + formattedText.length);
+                editor.focus();
+                this.updateWordCount();
+            }
+
+            insertImage() {
+                const url = prompt('画像のURLを入力してください:');
+                if (url) {
+                    const editor = document.getElementById('contentEditor');
+                    const cursorPos = editor.selectionStart;
+                    const imageText = `\n\n![画像](${url})\n\n`;
+                    
+                    editor.value = editor.value.substring(0, cursorPos) + imageText + editor.value.substring(cursorPos);
+                    editor.setSelectionRange(cursorPos + imageText.length, cursorPos + imageText.length);
+                    editor.focus();
+                    this.updateWordCount();
+                }
+            }
+
+            previewBook() {
+                this.saveCurrentChapter();
+                
+                const preview = document.getElementById('bookPreview');
+                preview.innerHTML = `
+                    <h1>${this.book.title}</h1>
+                    <div class="author">著者: ${this.book.author}</div>
+                    <div style="margin-bottom: 30px; font-style: italic; color: #666; text-align: center;">
+                        ${this.book.description}
+                    </div>
+                    
+                    ${this.book.chapters.map(chapter => `
+                        <div class="chapter">
+                            <h2>${chapter.title}</h2>
+                            <div class="chapter-content">${this.formatContentForPreview(chapter.content)}</div>
+                        </div>
+                    `).join('')}
+                `;
+                
+                document.getElementById('previewModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            formatContentForPreview(content) {
+                return content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+                    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; margin: 20px 0;">')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/^/, '<p>')
+                    .replace(/$/, '</p>');
+            }
+
+            closePreview() {
+                document.getElementById('previewModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            exportBook(format) {
+                this.saveCurrentChapter();
+                
+                if (format === 'html') {
+                    this.exportAsHTML();
+                } else if (format === 'text') {
+                    this.exportAsText();
+                }
+            }
+
+            exportAsHTML() {
+                const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${this.book.title}</title>
+    <style>
+        body {
+            font-family: 'Crimson Text', serif;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .author {
+            text-align: center;
+            color: #888;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .description {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .chapter {
+            margin-bottom: 60px;
+            page-break-after: always;
+        }
+        .chapter h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        .chapter-content {
+            font-size: 1.1em;
+            text-align: justify;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>${this.book.title}</h1>
+    <div class="author">著者: ${this.book.author}</div>
+    <div class="description">${this.book.description}</div>
+    
+    ${this.book.chapters.map(chapter => `
+        <div class="chapter">
+            <h2>${chapter.title}</h2>
+            <div class="chapter-content">${this.formatContentForPreview(chapter.content)}</div>
+        </div>
+    `).join('')}
+</body>
+</html>`;
+
+                this.downloadFile(htmlContent, `${this.book.title}.html`, 'text/html');
+            }
+
+            exportAsText() {
+                const textContent = `${this.book.title}
+著者: ${this.book.author}
+
+${this.book.description}
+
+${'='.repeat(50)}
+
+${this.book.chapters.map(chapter => `
+${chapter.title}
+${'-'.repeat(chapter.title.length)}
+
+${chapter.content}
+
+`).join('\n')}`;
+
+                this.downloadFile(textContent, `${this.book.title}.txt`, 'text/plain');
+            }
+
+            downloadFile(content, filename, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert(`${filename} がダウンロードされました！`);
+            }
+
+            saveChapter() {
+                if (this.currentChapterIndex !== -1) {
+                    this.saveCurrentChapter();
+                    alert('章が保存されました！');
+                    this.renderChaptersList();
+                } else {
+                    alert('保存する章を選択してください。');
+                }
+            }
+        }
+
+        // グローバル関数
+        let app;
+
+        window.addEventListener('load', () => {
+            app = new EBookCreator();
+        });
+
+        function addChapter() {
+            app.addChapter();
+        }
+
+        function saveChapter() {
+            app.saveChapter();
+        }
+
+        function formatText(type) {
+            app.formatText(type);
+        }
+
+        function insertImage() {
+            app.insertImage();
+        }
+
+        function previewBook() {
+            app.previewBook();
+        }
+
+        function closePreview() {
+            app.closePreview();
+        }
+
+        function exportBook(format) {
+            app.exportBook(format);
+        }
+
+        function toggleMobileActions() {
+            // モバイル用の追加アクション
+            const actions = [
+                { text: '新章追加', action: () => app.addChapter() },
+                { text: '保存', action: () => app.saveChapter() },
+                { text: 'プレビュー', action: () => app.previewBook() },
+                { text: 'エクスポート', action: () => app.exportBook('html') }
+            ];
+            
+            const choice = prompt('アクションを選択:\n' + actions.map((a, i) => `${i + 1}. ${a.text}`).join('\n'));
+            const index = parseInt(choice) - 1;
+            
+            if (index >= 0 && index < actions.length) {
+                actions[index].action();
+            }
+        }
+
+        // モーダルクリック時の背景クローズ
+        document.getElementById('previewModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                app.closePreview();
+            }
+        });
+
+        // ESCキーでモーダルを閉じる
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                app.closePreview();
+            }
+        });
+    </script>
+</body>
+</html>
